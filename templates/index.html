@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>House Price Prediction</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>House Price Prediction</h1>
+            <p class="subtitle">Get an accurate estimate for your property value</p>
+        </div>
+        
+        <div class="form-container">
+            <form action="/predict" method="POST" id="prediction-form">
+                <div class="form-group">
+                    <label for="overall_qual">Overall Quality (1-10):</label>
+                    <div class="custom-input-container">
+                        <input type="text" id="overall_qual" name="overall_qual" required>
+                        <i class="fas fa-star input-icon"></i>
+                    </div>
+                    <span class="input-hint">Rate the overall material and finish quality</span>
+                </div>
+
+                <div class="form-group">
+                    <label for="gr_liv_area">Living Area (sq. ft.):</label>
+                    <div class="custom-input-container">
+                        <input type="text" id="gr_liv_area" name="gr_liv_area" required>
+                        <i class="fas fa-home input-icon"></i>
+                    </div>
+                    <span class="input-hint">Above grade (ground) living area</span>
+                </div>
+
+                <div class="form-group">
+                    <label for="bedrooms">Bedrooms:</label>
+                    <div class="custom-input-container">
+                        <input type="text" id="bedrooms" name="bedrooms" required>
+                        <i class="fas fa-bed input-icon"></i>
+                    </div>
+                    <span class="input-hint">Number of bedrooms</span>
+                </div>
+
+                <div class="form-group">
+                    <label for="full_bath">Full Bathrooms:</label>
+                    <div class="custom-input-container">
+                        <input type="text" id="full_bath" name="full_bath" required>
+                        <i class="fas fa-bath input-icon"></i>
+                    </div>
+                    <span class="input-hint">Number of full bathrooms</span>
+                </div>
+
+                <div class="form-group">
+                    <label for="tot_rms">Total Rooms:</label>
+                    <div class="custom-input-container">
+                        <input type="text" id="tot_rms" name="tot_rms" required>
+                        <i class="fas fa-door-open input-icon"></i>
+                    </div>
+                    <span class="input-hint">Total rooms above grade (does not include bathrooms)</span>
+                </div>
+
+                <div class="form-group">
+                    <label for="year_built">Year Built:</label>
+                    <div class="custom-input-container">
+                        <input type="text" id="year_built" name="year_built" required>
+                        <i class="fas fa-calendar-alt input-icon"></i>
+                    </div>
+                    <span class="input-hint">Original construction date</span>
+                </div>
+
+                <div class="form-group">
+                    <label for="lot_area">Lot Area (sq. ft.):</label>
+                    <div class="custom-input-container">
+                        <input type="text" id="lot_area" name="lot_area" required>
+                        <i class="fas fa-ruler-combined input-icon"></i>
+                    </div>
+                    <span class="input-hint">Lot size in square feet</span>
+                </div>
+
+                <button type="submit" id="predict-button">
+                    <i class="fas fa-calculator"></i> Predict Price
+                </button>
+            </form>
+            
+            <div class="loading" id="loading">
+                <div class="loading-spinner"></div>
+                <p>Calculating your home value...</p>
+            </div>
+            
+            {% if prediction_text %}
+            <div class="result">
+                <h2>{{ prediction_text }}</h2>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="features">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <h3 class="feature-title">Accurate Predictions</h3>
+                <p class="feature-description">Our advanced machine learning model provides highly accurate home value estimates.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-database"></i>
+                </div>
+                <h3 class="feature-title">Data-Driven</h3>
+                <p class="feature-description">Powered by extensive real estate data and market trends analysis.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-bolt"></i>
+                </div>
+                <h3 class="feature-title">Instant Results</h3>
+                <p class="feature-description">Get your property valuation in seconds, no waiting required.</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="footer">
+        <p>&copy; 2025 House Price Predictor | All Rights Reserved</p>
+    </div>
+    
+    <script>
+        // Form validation and animation
+        document.getElementById('prediction-form').addEventListener('submit', function(e) {
+            const inputs = document.querySelectorAll('input[type="text"]');
+            let isValid = true;
+            
+            // Validate each input
+            inputs.forEach(input => {
+                const value = input.value.trim();
+                const formGroup = input.closest('.form-group');
+                
+                // Remove any existing error classes
+                formGroup.classList.remove('error');
+                
+                // Check if empty
+                if (value === '') {
+                    formGroup.classList.add('error');
+                    isValid = false;
+                    return;
+                }
+                
+                // Check if numeric
+                if (isNaN(value)) {
+                    formGroup.classList.add('error');
+                    isValid = false;
+                    return;
+                }
+                
+                // Specific validations
+                switch(input.id) {
+                    case 'overall_qual':
+                        if (value < 1 || value > 10) {
+                            formGroup.classList.add('error');
+                            isValid = false;
+                        }
+                        break;
+                    case 'year_built':
+                        if (value < 1800 || value > new Date().getFullYear()) {
+                            formGroup.classList.add('error');
+                            isValid = false;
+                        }
+                        break;
+                }
+            });
+            
+            if (!isValid) {
+                e.preventDefault();
+                return;
+            }
+            
+            // Show loading animation
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('predict-button').textContent = 'Processing...';
+        });
+        
+        // Add animation when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            document.body.classList.add('loaded');
+        });
+    </script>
+</body>
+</html>
